@@ -294,6 +294,7 @@ resource "aws_instance" "web_1" {
   vpc_security_group_ids = [aws_security_group.web.id]
   key_name               = var.key_pair_name
   user_data              = file("${path.module}/userdata/web_server.sh")
+  iam_instance_profile   = aws_iam_instance_profile.web.name
 
   tags = { Name = "${var.project_name}-web-1" }
 }
@@ -305,6 +306,7 @@ resource "aws_instance" "web_2" {
   vpc_security_group_ids = [aws_security_group.web.id]
   key_name               = var.key_pair_name
   user_data              = file("${path.module}/userdata/web_server.sh")
+  iam_instance_profile   = aws_iam_instance_profile.web.name
 
   tags = { Name = "${var.project_name}-web-2" }
 }
@@ -497,4 +499,32 @@ resource "aws_route53_record" "shop" {
     zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
     evaluate_target_health = false
   }
+}
+
+resource "aws_iam_role" "web" {
+  name = "${var.project_name}-web-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "web_ssm" {
+  role       = aws_iam_role.web.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "web" {
+  name = "${var.project_name}-web-profile"
+  role = aws_iam_role.web.name
+}
+
+resource "aws_iam_role_policy_attachment" "app_ssm" {
+  role       = aws_iam_role.app.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
