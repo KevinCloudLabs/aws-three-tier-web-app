@@ -1,0 +1,44 @@
+name: Deploy Website
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'website/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-three-tier
+          aws-region: us-west-1
+
+      - name: Copy HTML to web servers
+        run: |
+          WEB_1_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=ecommerce-web-1" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+
+          WEB_2_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=ecommerce-web-2" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+
+          aws ssm send-command \
+            --instance-ids "$WEB_1_ID" "$WEB_2_ID" \
+            --document-name "AWS-RunShellScript" \
+            --parameters commands=["sudo tee /usr/share/nginx/html/index.html > /dev/null << 'EOF'
+          $(cat website/index.html)
+          EOF"]

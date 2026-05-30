@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KL Performance Parts</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#111;
+    color:white;
+    line-height:1.5;
+}
+
+/* HEADER */
+
+header{
+    background:#0d0d0d;
+    border-bottom:2px solid #cc0000;
+    padding:20px 50px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:100;
+}
+
+header h1{
+    font-size:30px;
+    letter-spacing:3px;
+}
+
+header p{
+    color:#999;
+    font-size:13px;
+    margin-top:5px;
+}
+
+.header-right{
+    color:#ff4d4d;
+    font-weight:bold;
+    font-size:14px;
+}
+
+/* HERO */
+
+.hero{
+    height:520px;
+    background:
+    linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.75)),
+    url('https://images.unsplash.com/photo-1494905998402-395d579af36f?q=80&w=1600&auto=format&fit=crop')
+    center/cover;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:40px;
+}
+
+.hero-content h2{
+    font-size:64px;
+    text-transform:uppercase;
+    margin-bottom:15px;
+}
+
+.hero-content p{
+    color:#ccc;
+    font-size:20px;
+    margin-bottom:25px;
+}
+
+.hero-btn{
+    background:#cc0000;
+    color:white;
+    border:none;
+    padding:14px 30px;
+    font-size:15px;
+    font-weight:bold;
+    border-radius:5px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.hero-btn:hover{
+    background:#ff1a1a;
+    transform:translateY(-3px);
+}
+
+/* TITLES */
+
+.section-title{
+    text-align:center;
+    font-size:36px;
+    margin-top:60px;
+    margin-bottom:10px;
+}
+
+.section-sub{
+    text-align:center;
+    color:#777;
+    margin-bottom:40px;
+}
+
+/* PRODUCTS */
+
+.products{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(300px,1fr));
+    gap:30px;
+    padding:0 50px 70px;
+}
+
+.product{
+    background:#1a1a1a;
+    border:1px solid #2d2d2d;
+    border-radius:14px;
+    overflow:hidden;
+    transition:0.35s;
+    box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+
+.product:hover{
+    transform:translateY(-8px);
+    border-color:#cc0000;
+    box-shadow:0 12px 35px rgba(204,0,0,0.25);
+}
+
+.product img{
+    width:100%;
+    height:240px;
+    object-fit:contain;
+    background:#0d0d0d;
+    padding:20px;
+    transition:0.4s;
+}
+
+.product:hover img{
+    transform:scale(1.03);
+}
+
+.product-info{
+    padding:22px;
+}
+
+.product-info h3{
+    font-size:22px;
+    margin-bottom:12px;
+}
+
+.product-info p{
+    color:#aaa;
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+.product-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.price{
+    color:#ff3333;
+    font-size:26px;
+    font-weight:bold;
+}
+
+button{
+    background:#cc0000;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.25s;
+}
+
+button:hover{
+    background:#ff1a1a;
+}
+
+.badge{
+    background:#ffb300;
+    color:black;
+    padding:4px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+    margin-left:8px;
+}
+
+/* FEATURES */
+
+.features{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    padding:20px 40px 80px;
+    flex-wrap:wrap;
+}
+
+.feature-box{
+    background:#181818;
+    border:1px solid #2c2c2c;
+    padding:25px;
+    width:280px;
+    border-radius:12px;
+    text-align:center;
+}
+
+.feature-box h4{
+    color:#ff3333;
+    margin-bottom:10px;
+}
+
+/* FOOTER */
+
+footer{
+    border-top:1px solid #2c2c2c;
+    padding:30px;
+    text-align:center;
+    color:#666;
+    font-size:14px;
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+    header{
+        flex-direction:column;
+        gap:10px;
+        text-align:center;
+    }
+
+    .hero-content h2{
+        font-size:42px;
+    }
+
+    .products{
+        padding:0 20px 50px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>KL PERFORMANCE</h1>
+        <p>Premium Performance Parts for Street & Track Builds</p>
+    </div>
+
+    <div class="header-right">
+        FREE SHIPPING OVER $200
+    </div>
+</header>
+
+<section class="hero">
+    <div class="hero-content">
+        <h2>Built For Enthusiasts</h2>
+        <p>Performance upgrades engineered for serious drivers.</p>
+        <button class="hero-btn">Shop Performance Parts</button>
+    </div>
+</section>
+
+<h2 class="section-title">Featured Products</h2>
+<p class="section-sub">Premium aftermarket upgrades for modern platforms</p>
+
+<section class="products">
+
+    <!-- EXHAUST -->
+    <div class="product">
+        <img src="https://irlllc.com/cdn/shop/files/886233B9-6F8E-48CF-9929-EF238CDB4B11.jpg?crop=center&height=1560&v=1764116162&width=1560" alt="Cat Back Exhaust">
+
+        <div class="product-info">
+            <h3>Cat-Back Exhaust System <span class="badge">POPULAR</span></h3>
+            <p>Stainless steel cat-back system with aggressive tone and improved exhaust flow.</p>
+
+            <div class="product-footer">
+                <span class="price">$649</span>
+                <button>Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTAKE -->
+    <div class="product">
+        <img src="https://afepower.com/media/catalog/product/5/4/54-12172-c_1_1.jpg?optimize=medium&fit=bounds&height=&width=" alt="Cold Air Intake">
+
+        <div class="product-info">
+            <h3>Cold Air Intake Kit</h3>
+            <p>High-flow intake system designed for improved airflow and sharper throttle response.</p>
+
+            <div class="product-footer">
+                <span class="price">$299</span>
+                <button>Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COILOVERS -->
+    <div class="product">
+        <img src="https://cdn11.bigcommerce.com/s-t1zcj9yna9/images/stencil/1280x1280/products/10759/41971/Product_Crop_DSC07745-Edit__18644.1768941903.jpg?c=1" alt="Coilovers">
+
+        <div class="product-info">
+            <h3>Coilover Suspension Kit <span class="badge">NEW</span></h3>
+            <p>Adjustable ride height and damping for improved handling and track-ready performance.</p>
+
+            <div class="product-footer">
+                <span class="price">$1,299</span>
+                <button>Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BIG BRAKES -->
+    <div class="product">
+        <img src="https://ceika-store.com/cdn/shop/files/CEIKA_Custom_Big_Brake_Kit_heic_671adfc5-8428-4ab6-8690-1a6dcf0e0212_5000x.jpg?v=1690455130" alt="Big Brake Kit">
+
+        <div class="product-info">
+            <h3>Big Brake Upgrade Kit</h3>
+            <p>6-piston calipers with slotted rotors and stainless lines for maximum stopping power.</p>
+
+            <div class="product-footer">
+                <span class="price">$899</span>
+                <button>Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WHEELS -->
+    <div class="product">
+        <img src="https://lf-ind.com/cdn/shop/files/lfi-rex-06-v2-racing-forged-wheel-product_5000x.jpg?v=1778575952" alt="Forged Wheels">
+
+        <div class="product-info">
+            <h3>Forged Aluminum Wheels <span class="badge">BEST SELLER</span></h3>
+            <p>Lightweight forged wheels engineered for strength, style, and reduced rotational mass.</p>
+
+            <div class="product-footer">
+                <span class="price">$1,899</span>
+                <button>Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ECU -->
+    <div class="product">
+        <img src="https://dsportmag.com/wp-content/uploads/2016/09/171-BOB-ECU-Tuning-003-ECULaptop.jpg" alt="ECU Tune">
+
+        <div class="product-info">
+            <h3>ECU Performance Tune</h3>
+            <p>Custom ECU calibration optimizing fueling, ignition timing, and boost targets.</p>
+
+            <div class="product-footer">
+                <span class="price">$499</span>
+                <button>Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<section class="features">
+    <div class="feature-box">
+        <h4>Track Tested</h4>
+        <p>Every product is tested under real driving conditions.</p>
+    </div>
+
+    <div class="feature-box">
+        <h4>Fast Shipping</h4>
+        <p>Quick nationwide shipping from our US warehouse network.</p>
+    </div>
+
+    <div class="feature-box">
+        <h4>Built By Enthusiasts</h4>
+        <p>Designed for drivers who care about performance and reliability.</p>
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 KL Performance Parts — Powered by AWS | Deployed with Terraform</p>
+</footer>
+
+</body>
+</html>
