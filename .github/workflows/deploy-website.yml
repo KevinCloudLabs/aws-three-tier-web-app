@@ -27,10 +27,9 @@ jobs:
 
       - name: Debug repository structure
         run: |
-          pwd
-          ls -R
+          ls -R website
 
-      - name: Copy HTML to web servers
+      - name: Copy HTML to web servers (SSM inject)
         run: |
           WEB_1_ID=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=ecommerce-web-1" \
@@ -42,13 +41,14 @@ jobs:
             --query "Reservations[0].Instances[0].InstanceId" \
             --output text)
 
+          # base64 encode file safely (no line wrap issues)
           HTML_CONTENT=$(base64 -w 0 website/index.html)
 
           aws ssm send-command \
             --instance-ids "$WEB_1_ID" "$WEB_2_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploy website" \
-            --parameters commands="echo '$HTML_CONTENT' | base64 -d | sudo tee /usr/share/nginx/html/index.html > /dev/null"
+            --parameters "{\"commands\":[\"echo $HTML_CONTENT | base64 -d | sudo tee /usr/share/nginx/html/index.html > /dev/null && sudo systemctl restart nginx\"]}"
 
       - name: Deployment complete
-        run: echo "Website deployment command sent successfully."
+        run: echo "SSM deployment successful"
