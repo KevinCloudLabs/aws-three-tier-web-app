@@ -10,6 +10,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     permissions:
       id-token: write
       contents: read
@@ -24,6 +25,11 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-three-tier
           aws-region: us-west-1
 
+      - name: Debug repository structure
+        run: |
+          pwd
+          ls -R
+
       - name: Copy HTML to web servers
         run: |
           WEB_1_ID=$(aws ec2 describe-instances \
@@ -36,9 +42,13 @@ jobs:
             --query "Reservations[0].Instances[0].InstanceId" \
             --output text)
 
+          HTML_CONTENT=$(base64 -w 0 website/index.html)
+
           aws ssm send-command \
             --instance-ids "$WEB_1_ID" "$WEB_2_ID" \
             --document-name "AWS-RunShellScript" \
-            --parameters commands=["sudo tee /usr/share/nginx/html/index.html > /dev/null << 'EOF'
-          $(cat website/index.html)
-          EOF"]
+            --comment "Deploy website" \
+            --parameters commands="echo '$HTML_CONTENT' | base64 -d | sudo tee /usr/share/nginx/html/index.html > /dev/null"
+
+      - name: Deployment complete
+        run: echo "Website deployment command sent successfully."
