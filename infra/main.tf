@@ -9,7 +9,7 @@ resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
-  tags = { Name = "${var.project_name}-vpc" }
+  tags                 = { Name = "${var.project_name}-vpc" }
 }
 
 resource "aws_subnet" "public_1" {
@@ -17,7 +17,7 @@ resource "aws_subnet" "public_1" {
   cidr_block              = "10.0.1.0/24"
   availability_zone       = "${var.aws_region}a"
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project_name}-public-subnet-1" }
+  tags                    = { Name = "${var.project_name}-public-subnet-1" }
 }
 
 resource "aws_subnet" "public_2" {
@@ -25,45 +25,45 @@ resource "aws_subnet" "public_2" {
   cidr_block              = "10.0.2.0/24"
   availability_zone       = "${var.aws_region}c"
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project_name}-public-subnet-2" }
+  tags                    = { Name = "${var.project_name}-public-subnet-2" }
 }
 
 resource "aws_subnet" "private_1" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.3.0/24"
-  availability_zone       = "${var.aws_region}a"
-  tags = { Name = "${var.project_name}-private-subnet-1" }
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.3.0/24"
+  availability_zone = "${var.aws_region}a"
+  tags              = { Name = "${var.project_name}-private-subnet-1" }
 }
 
 resource "aws_subnet" "private_2" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.4.0/24"
-  availability_zone       = "${var.aws_region}c"
-  tags = { Name = "${var.project_name}-private-subnet-2" }
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.4.0/24"
+  availability_zone = "${var.aws_region}c"
+  tags              = { Name = "${var.project_name}-private-subnet-2" }
 }
 
 resource "aws_subnet" "db_1" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.5.0/24"
-  availability_zone       = "${var.aws_region}a"
-  tags = { Name = "${var.project_name}-db-subnet-1" }
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.5.0/24"
+  availability_zone = "${var.aws_region}a"
+  tags              = { Name = "${var.project_name}-db-subnet-1" }
 }
 
 resource "aws_subnet" "db_2" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.6.0/24"
-  availability_zone       = "${var.aws_region}c"
-  tags = { Name = "${var.project_name}-db-subnet-2" }
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.6.0/24"
+  availability_zone = "${var.aws_region}c"
+  tags              = { Name = "${var.project_name}-db-subnet-2" }
 }
 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
-  tags = { Name = "${var.project_name}-igw" }
+  tags   = { Name = "${var.project_name}-igw" }
 }
 
 resource "aws_eip" "nat" {
   domain = "vpc"
-  tags = { Name = "${var.project_name}-nat-eip" }
+  tags   = { Name = "${var.project_name}-nat-eip" }
 }
 
 resource "aws_nat_gateway" "main" {
@@ -83,7 +83,7 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.main.id
   }
 
-  tags = { Name  = "${var.project_name}-public-rt" }
+  tags = { Name = "${var.project_name}-public-rt" }
 }
 
 resource "aws_route_table" "private" {
@@ -94,37 +94,37 @@ resource "aws_route_table" "private" {
     nat_gateway_id = aws_nat_gateway.main.id
   }
 
-  tags = { Name  = "${var.project_name}-private-rt" }
+  tags = { Name = "${var.project_name}-private-rt" }
 }
 
 resource "aws_route_table_association" "public_1" {
   subnet_id      = aws_subnet.public_1.id
-  route_table_id = aws_route_table.public.id 
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "public_2" {
   subnet_id      = aws_subnet.public_2.id
-  route_table_id = aws_route_table.public.id 
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "private_1" {
   subnet_id      = aws_subnet.private_1.id
-  route_table_id = aws_route_table.private.id 
+  route_table_id = aws_route_table.private.id
 }
 
 resource "aws_route_table_association" "private_2" {
   subnet_id      = aws_subnet.private_2.id
-  route_table_id = aws_route_table.private.id 
+  route_table_id = aws_route_table.private.id
 }
 
 resource "aws_route_table_association" "db_1" {
   subnet_id      = aws_subnet.db_1.id
-  route_table_id = aws_route_table.private.id 
+  route_table_id = aws_route_table.private.id
 }
 
 resource "aws_route_table_association" "db_2" {
   subnet_id      = aws_subnet.db_2.id
-  route_table_id = aws_route_table.private.id 
+  route_table_id = aws_route_table.private.id
 }
 
 resource "aws_security_group" "alb" {
@@ -170,9 +170,9 @@ resource "aws_security_group" "web" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.my_ip, var.instance_connect_cidr] 
+    cidr_blocks = [var.my_ip, var.instance_connect_cidr]
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -198,9 +198,9 @@ resource "aws_security_group" "app" {
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    security_groups = [aws_security_group.bastion.id] 
+    security_groups = [aws_security_group.bastion.id]
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -221,7 +221,7 @@ resource "aws_security_group" "db" {
     protocol        = "tcp"
     security_groups = [aws_security_group.app.id]
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -242,7 +242,7 @@ resource "aws_security_group" "bastion" {
     protocol    = "tcp"
     cidr_blocks = [var.my_ip, var.instance_connect_cidr]
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -272,9 +272,9 @@ resource "aws_db_instance" "main" {
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.db.id]
   skip_final_snapshot    = true
-  multi_az               = false 
+  multi_az               = false
 
-  tags = { Name = "${var.project_name}-db"}
+  tags = { Name = "${var.project_name}-db" }
 }
 
 data "aws_ami" "amazon_linux" {
@@ -378,13 +378,13 @@ resource "aws_lb_target_group_attachment" "web_2" {
 resource "aws_sns_topic" "main" {
   name = "${var.project_name}-sns"
 
-  tags = { Name = "${var.project_name}-sns"}
+  tags = { Name = "${var.project_name}-sns" }
 }
 
 resource "aws_sns_topic_subscription" "main" {
   topic_arn = aws_sns_topic.main.arn
-  protocol = "email"
-  endpoint = var.subscriber_email
+  protocol  = "email"
+  endpoint  = var.subscriber_email
 }
 
 resource "aws_iam_role" "app" {
@@ -445,8 +445,8 @@ data "aws_acm_certificate" "main" {
 }
 
 resource "aws_cloudfront_distribution" "main" {
-  enabled             = true
-  aliases             = ["shop.kevinlutes.com"]
+  enabled = true
+  aliases = ["shop.kevinlutes.com"]
 
   origin {
     domain_name = aws_lb.main.dns_name

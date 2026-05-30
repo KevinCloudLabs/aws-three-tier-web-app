@@ -12,7 +12,7 @@ variable "project_name" {
 
 variable "my_ip" {
   description = "My local IP address for SSH access"
-  type        = string 
+  type        = string
 }
 
 variable "key_pair_name" {
@@ -23,7 +23,7 @@ variable "key_pair_name" {
 variable "db_password" {
   description = "Password for database"
   type        = string
-  sensitive   = true 
+  sensitive   = true
 }
 
 variable "subscriber_email" {
