@@ -317,8 +317,13 @@ resource "aws_instance" "app_1" {
   subnet_id              = aws_subnet.private_1.id
   vpc_security_group_ids = [aws_security_group.app.id]
   key_name               = var.key_pair_name
-  user_data              = file("${path.module}/userdata/app_server.sh")
   iam_instance_profile   = aws_iam_instance_profile.app.name
+  user_data = templatefile("${path.module}/userdata/app_server.sh", { 
+    db_host       = aws_db_instance.main.address
+    db_password   = var.db_password
+    sns_topic_arn = aws_sns_topic.main.arn
+    aws_region    = var.aws_region
+  })
 
   tags = { Name = "${var.project_name}-app-1" }
 }
@@ -329,8 +334,13 @@ resource "aws_instance" "app_2" {
   subnet_id              = aws_subnet.private_2.id
   vpc_security_group_ids = [aws_security_group.app.id]
   key_name               = var.key_pair_name
-  user_data              = file("${path.module}/userdata/app_server.sh")
   iam_instance_profile   = aws_iam_instance_profile.app.name
+  user_data = templatefile("${path.module}/userdata/app_server.sh", { 
+    db_host       = aws_db_instance.main.address
+    db_password   = var.db_password
+    sns_topic_arn = aws_sns_topic.main.arn
+    aws_region    = var.aws_region
+  })
 
   tags = { Name = "${var.project_name}-app-2" }
 }

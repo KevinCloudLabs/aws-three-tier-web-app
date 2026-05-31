@@ -48,11 +48,11 @@ def add_to_cart():
                 (product_name, price)
             )
         conn.commit()
-        sns = boto3.client('sns', region_name=os.environ.get('AWS_REGION', 'us-west-1'))
+        sns = boto3.client('sns', region_name='${aws_region}')
         sns.publish(
             TopicArn=SNS_TOPIC_ARN,
             Subject='Order Confirmation - KL Performance',
-            Message=f'Your order for {product_name} (${price}) has been placed!'
+            Message=f'Your order for {product_name} has been placed!'
         )
         return jsonify({'message': f'{product_name} added to cart!'}), 200
     except Exception as e:
@@ -62,7 +62,43 @@ def add_to_cart():
         conn.close()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080)
 PYEOF
 
-chown ec2-user:ec2-user /home/ec2-user/app/app.py
+chown -R ec2-user:ec2-user /home/ec2-user/app
+
+# Create systemd service with injected values
+cat > /etc/systemd/system/flask-app.service << 'SVCEOF'
+[Unit]
+Description=KL Performance Flask App
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user/app
+Environment="DB_HOST=${db_host}"
+Environment="DB_USER=admin"
+Environment="DB_PASSWORD=${db_password}"
+Environment="DB_NAME=ecommerce"
+Environment="SNS_TOPIC_ARN=${sns_topic_arn}"
+ExecStart=/usr/bin/python3 /home/ec2-user/app/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+SVCEOF
+
+systemctl daemon-reload
+systemctl enable flask-app
+systemctl start flask-app
+
+# Create orders table
+mysql -h ${db_host} -u admin -p${db_password} ecommerce << 'SQLEOF'
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(255) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+SQLEOF
