@@ -20,8 +20,6 @@ body{
     line-height:1.5;
 }
 
-/* HEADER */
-
 header{
     background:#0d0d0d;
     border-bottom:2px solid #cc0000;
@@ -50,8 +48,6 @@ header p{
     font-weight:bold;
     font-size:14px;
 }
-
-/* HERO */
 
 .hero{
     height:520px;
@@ -95,8 +91,6 @@ header p{
     transform:translateY(-3px);
 }
 
-/* TITLES */
-
 .section-title{
     text-align:center;
     font-size:36px;
@@ -109,8 +103,6 @@ header p{
     color:#777;
     margin-bottom:40px;
 }
-
-/* PRODUCTS */
 
 .products{
     display:grid;
@@ -199,8 +191,6 @@ button:hover{
     margin-left:8px;
 }
 
-/* FEATURES */
-
 .features{
     display:flex;
     justify-content:center;
@@ -223,7 +213,27 @@ button:hover{
     margin-bottom:10px;
 }
 
-/* FOOTER */
+.toast{
+    position:fixed;
+    bottom:30px;
+    right:30px;
+    background:#1a1a1a;
+    border:1px solid #cc0000;
+    color:white;
+    padding:16px 24px;
+    border-radius:10px;
+    font-size:15px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.4);
+    opacity:0;
+    transform:translateY(20px);
+    transition:0.4s;
+    z-index:999;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translateY(0);
+}
 
 footer{
     border-top:1px solid #2c2c2c;
@@ -233,24 +243,18 @@ footer{
     font-size:14px;
 }
 
-/* MOBILE */
-
 @media(max-width:768px){
-
     header{
         flex-direction:column;
         gap:10px;
         text-align:center;
     }
-
     .hero-content h2{
         font-size:42px;
     }
-
     .products{
         padding:0 20px 50px;
     }
-
 }
 
 </style>
@@ -263,10 +267,7 @@ footer{
         <h1>KL PERFORMANCE</h1>
         <p>Premium Performance Parts for Street & Track Builds</p>
     </div>
-
-    <div class="header-right">
-        FREE SHIPPING OVER $200
-    </div>
+    <div class="header-right">FREE SHIPPING OVER $200</div>
 </header>
 
 <section class="hero">
@@ -282,92 +283,74 @@ footer{
 
 <section class="products">
 
-    <!-- EXHAUST -->
     <div class="product">
         <img src="https://irlllc.com/cdn/shop/files/886233B9-6F8E-48CF-9929-EF238CDB4B11.jpg?crop=center&height=1560&v=1764116162&width=1560" alt="Cat Back Exhaust">
-
         <div class="product-info">
             <h3>Cat-Back Exhaust System <span class="badge">POPULAR</span></h3>
             <p>Stainless steel cat-back system with aggressive tone and improved exhaust flow.</p>
-
             <div class="product-footer">
                 <span class="price">$649</span>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('Cat-Back Exhaust System', 649.99)">Add to Cart</button>
             </div>
         </div>
     </div>
 
-    <!-- INTAKE -->
     <div class="product">
         <img src="https://afepower.com/media/catalog/product/5/4/54-12172-c_1_1.jpg?optimize=medium&fit=bounds&height=&width=" alt="Cold Air Intake">
-
         <div class="product-info">
             <h3>Cold Air Intake Kit</h3>
             <p>High-flow intake system designed for improved airflow and sharper throttle response.</p>
-
             <div class="product-footer">
                 <span class="price">$299</span>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('Cold Air Intake Kit', 299.99)">Add to Cart</button>
             </div>
         </div>
     </div>
 
-    <!-- COILOVERS -->
     <div class="product">
         <img src="https://cdn11.bigcommerce.com/s-t1zcj9yna9/images/stencil/1280x1280/products/10759/41971/Product_Crop_DSC07745-Edit__18644.1768941903.jpg?c=1" alt="Coilovers">
-
         <div class="product-info">
             <h3>Coilover Suspension Kit <span class="badge">NEW</span></h3>
             <p>Adjustable ride height and damping for improved handling and track-ready performance.</p>
-
             <div class="product-footer">
                 <span class="price">$1,299</span>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('Coilover Suspension Kit', 1299.99)">Add to Cart</button>
             </div>
         </div>
     </div>
 
-    <!-- BIG BRAKES -->
     <div class="product">
         <img src="https://ceika-store.com/cdn/shop/files/CEIKA_Custom_Big_Brake_Kit_heic_671adfc5-8428-4ab6-8690-1a6dcf0e0212_5000x.jpg?v=1690455130" alt="Big Brake Kit">
-
         <div class="product-info">
             <h3>Big Brake Upgrade Kit</h3>
             <p>6-piston calipers with slotted rotors and stainless lines for maximum stopping power.</p>
-
             <div class="product-footer">
                 <span class="price">$899</span>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('Big Brake Upgrade Kit', 899.99)">Add to Cart</button>
             </div>
         </div>
     </div>
 
-    <!-- WHEELS -->
     <div class="product">
         <img src="https://lf-ind.com/cdn/shop/files/lfi-rex-06-v2-racing-forged-wheel-product_5000x.jpg?v=1778575952" alt="Forged Wheels">
-
         <div class="product-info">
             <h3>Forged Aluminum Wheels <span class="badge">BEST SELLER</span></h3>
             <p>Lightweight forged wheels engineered for strength, style, and reduced rotational mass.</p>
-
             <div class="product-footer">
                 <span class="price">$1,899</span>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('Forged Aluminum Wheels', 1899.99)">Add to Cart</button>
             </div>
         </div>
     </div>
 
-    <!-- ECU -->
     <div class="product">
         <img src="https://dsportmag.com/wp-content/uploads/2016/09/171-BOB-ECU-Tuning-003-ECULaptop.jpg" alt="ECU Tune">
-
         <div class="product-info">
             <h3>ECU Performance Tune</h3>
             <p>Custom ECU calibration optimizing fueling, ignition timing, and boost targets.</p>
-
             <div class="product-footer">
                 <span class="price">$499</span>
-                <button>Add to Cart</button>
+                <button onclick="addToCart('ECU Performance Tune', 499.99)">Add to Cart</button>
             </div>
         </div>
     </div>
@@ -379,12 +362,10 @@ footer{
         <h4>Track Tested</h4>
         <p>Every product is tested under real driving conditions.</p>
     </div>
-
     <div class="feature-box">
         <h4>Fast Shipping</h4>
         <p>Quick nationwide shipping from our US warehouse network.</p>
     </div>
-
     <div class="feature-box">
         <h4>Built By Enthusiasts</h4>
         <p>Designed for drivers who care about performance and reliability.</p>
@@ -392,11 +373,30 @@ footer{
 </section>
 
 <footer>
-    <p>© 2026 KL Performance Parts — Powered by AWS | Deployed with Terraform</p>
+    <p>2026 KL Performance Parts - Powered by AWS | Deployed with Terraform</p>
 </footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+function addToCart(product, price) {
+    fetch('/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_name: product, price: price })
+    })
+    .then(res => res.json())
+    .then(data => showToast(data.message || data.error))
+    .catch(err => showToast('Error connecting to server'));
+}
+</script>
 
 </body>
 </html>
-
-
-
