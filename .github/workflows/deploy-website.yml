@@ -33,13 +33,13 @@ jobs:
         run: |
           WEB_1_ID=$(aws ec2 describe-instances \
             --region us-west-1 \
-            --filters "Name=tag:Name,Values=ecommerce-web-1" \
+            --filters "Name=tag:Name,Values=ecommerce-web-1" "Name=instance-state-name,Values=running" \
             --query "Reservations[0].Instances[0].InstanceId" \
             --output text)
 
           WEB_2_ID=$(aws ec2 describe-instances \
             --region us-west-1 \
-            --filters "Name=tag:Name,Values=ecommerce-web-2" \
+            --filters "Name=tag:Name,Values=ecommerce-web-2" "Name=instance-state-name,Values=running" \
             --query "Reservations[0].Instances[0].InstanceId" \
             --output text)
 
