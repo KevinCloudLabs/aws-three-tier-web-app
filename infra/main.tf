@@ -293,8 +293,10 @@ resource "aws_instance" "web_1" {
   subnet_id              = aws_subnet.public_1.id
   vpc_security_group_ids = [aws_security_group.web.id]
   key_name               = var.key_pair_name
-  user_data              = file("${path.module}/userdata/web_server.sh")
   iam_instance_profile   = aws_iam_instance_profile.web.name
+  user_data = templatefile("${path.module}/userdata/web_server.sh", {
+    app_server_ip = aws_instance.app_1.private_ip
+  })
 
   tags = { Name = "${var.project_name}-web-1" }
 }
@@ -305,8 +307,10 @@ resource "aws_instance" "web_2" {
   subnet_id              = aws_subnet.public_2.id
   vpc_security_group_ids = [aws_security_group.web.id]
   key_name               = var.key_pair_name
-  user_data              = file("${path.module}/userdata/web_server.sh")
   iam_instance_profile   = aws_iam_instance_profile.web.name
+  user_data = templatefile("${path.module}/userdata/web_server.sh", {
+    app_server_ip = aws_instance.app_1.private_ip
+  })
 
   tags = { Name = "${var.project_name}-web-2" }
 }
