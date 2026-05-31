@@ -5,7 +5,8 @@ systemctl start nginx
 systemctl enable nginx
 
 # Write nginx config with proxy to app server
-cat > /etc/nginx/nginx.conf << 'NGINXEOF'
+# Note: no quotes around NGINXEOF so ${app_server_ip} gets substituted
+cat > /etc/nginx/nginx.conf << NGINXEOF
 user nginx;
 worker_processes auto;
 error_log /var/log/nginx/error.log;
@@ -29,12 +30,12 @@ http {
 
         location /cart {
             proxy_pass http://${app_server_ip}:8080/cart;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
         }
 
         location / {
-            try_files $uri $uri/ =404;
+            try_files \$uri \$uri/ =404;
         }
 
         error_page 404 /404.html;

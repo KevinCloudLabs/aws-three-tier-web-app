@@ -37,7 +37,12 @@ jobs:
 
       - name: Terraform Init
         working-directory: infra
-        run: terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=kevin-terraform-state-three-tier" \
+            -backend-config="key=three-tier/terraform.tfstate" \
+            -backend-config="region=us-west-1" \
+            -backend-config="dynamodb_table=terraform-state-lock"
 
       - name: Terraform Format Check
         working-directory: infra
