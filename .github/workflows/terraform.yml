@@ -42,7 +42,7 @@ jobs:
             -backend-config="bucket=kevin-terraform-state-three-tier" \
             -backend-config="key=three-tier/terraform.tfstate" \
             -backend-config="region=us-west-1" \
-            -backend-config="dynamodb_table=terraform-state-lock"
+            -backend-config="dynamodb_table=terraform-state-lock-three-tier"
 
       - name: Terraform Format Check
         working-directory: infra
