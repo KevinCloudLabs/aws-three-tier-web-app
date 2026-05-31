@@ -318,7 +318,7 @@ resource "aws_instance" "app_1" {
   vpc_security_group_ids = [aws_security_group.app.id]
   key_name               = var.key_pair_name
   iam_instance_profile   = aws_iam_instance_profile.app.name
-  user_data = templatefile("${path.module}/userdata/app_server.sh", { 
+  user_data = templatefile("${path.module}/userdata/app_server.sh", {
     db_host       = aws_db_instance.main.address
     db_password   = var.db_password
     sns_topic_arn = aws_sns_topic.main.arn
@@ -335,7 +335,7 @@ resource "aws_instance" "app_2" {
   vpc_security_group_ids = [aws_security_group.app.id]
   key_name               = var.key_pair_name
   iam_instance_profile   = aws_iam_instance_profile.app.name
-  user_data = templatefile("${path.module}/userdata/app_server.sh", { 
+  user_data = templatefile("${path.module}/userdata/app_server.sh", {
     db_host       = aws_db_instance.main.address
     db_password   = var.db_password
     sns_topic_arn = aws_sns_topic.main.arn
