@@ -2,6 +2,11 @@ provider "aws" {
   region = var.aws_region
 }
 
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}
+
 provider "random" {
 }
 
@@ -287,32 +292,82 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-resource "aws_instance" "web_1" {
-  ami                    = data.aws_ami.amazon_linux.id
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public_1.id
-  vpc_security_group_ids = [aws_security_group.web.id]
-  key_name               = var.key_pair_name
-  iam_instance_profile   = aws_iam_instance_profile.web.name
-  user_data = templatefile("${path.module}/userdata/web_server.sh", {
-    app_server_ip = aws_instance.app_1.private_ip
-  })
-
-  tags = { Name = "${var.project_name}-web-1" }
+resource "aws_sns_topic" "main" {
+  name = "${var.project_name}-sns"
+  tags = { Name = "${var.project_name}-sns" }
 }
 
-resource "aws_instance" "web_2" {
-  ami                    = data.aws_ami.amazon_linux.id
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public_2.id
-  vpc_security_group_ids = [aws_security_group.web.id]
-  key_name               = var.key_pair_name
-  iam_instance_profile   = aws_iam_instance_profile.web.name
-  user_data = templatefile("${path.module}/userdata/web_server.sh", {
-    app_server_ip = aws_instance.app_1.private_ip
-  })
+resource "aws_sns_topic_subscription" "main" {
+  topic_arn = aws_sns_topic.main.arn
+  protocol  = "email"
+  endpoint  = var.subscriber_email
+}
 
-  tags = { Name = "${var.project_name}-web-2" }
+resource "aws_iam_role" "web" {
+  name = "${var.project_name}-web-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "web_ssm" {
+  role       = aws_iam_role.web.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "web" {
+  name = "${var.project_name}-web-profile"
+  role = aws_iam_role.web.name
+}
+
+resource "aws_iam_role" "app" {
+  name = "${var.project_name}-app-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "app" {
+  name = "${var.project_name}-app-policy"
+  role = aws_iam_role.app.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "sns:Publish"
+        Resource = aws_sns_topic.main.arn
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "arn:aws:logs:*:*:*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "app_ssm" {
+  role       = aws_iam_role.app.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "app" {
+  name = "${var.project_name}-app-profile"
+  role = aws_iam_role.app.name
 }
 
 resource "aws_instance" "app_1" {
@@ -322,6 +377,8 @@ resource "aws_instance" "app_1" {
   vpc_security_group_ids = [aws_security_group.app.id]
   key_name               = var.key_pair_name
   iam_instance_profile   = aws_iam_instance_profile.app.name
+  depends_on             = [aws_db_instance.main]
+
   user_data = templatefile("${path.module}/userdata/app_server.sh", {
     db_host       = aws_db_instance.main.address
     db_password   = var.db_password
@@ -339,6 +396,8 @@ resource "aws_instance" "app_2" {
   vpc_security_group_ids = [aws_security_group.app.id]
   key_name               = var.key_pair_name
   iam_instance_profile   = aws_iam_instance_profile.app.name
+  depends_on             = [aws_db_instance.main]
+
   user_data = templatefile("${path.module}/userdata/app_server.sh", {
     db_host       = aws_db_instance.main.address
     db_password   = var.db_password
@@ -347,6 +406,38 @@ resource "aws_instance" "app_2" {
   })
 
   tags = { Name = "${var.project_name}-app-2" }
+}
+
+resource "aws_instance" "web_1" {
+  ami                    = data.aws_ami.amazon_linux.id
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.public_1.id
+  vpc_security_group_ids = [aws_security_group.web.id]
+  key_name               = var.key_pair_name
+  iam_instance_profile   = aws_iam_instance_profile.web.name
+  depends_on             = [aws_instance.app_1]
+
+  user_data = templatefile("${path.module}/userdata/web_server.sh", {
+    app_server_ip = aws_instance.app_1.private_ip
+  })
+
+  tags = { Name = "${var.project_name}-web-1" }
+}
+
+resource "aws_instance" "web_2" {
+  ami                    = data.aws_ami.amazon_linux.id
+  instance_type          = "t2.micro"
+  subnet_id              = aws_subnet.public_2.id
+  vpc_security_group_ids = [aws_security_group.web.id]
+  key_name               = var.key_pair_name
+  iam_instance_profile   = aws_iam_instance_profile.web.name
+  depends_on             = [aws_instance.app_1]
+
+  user_data = templatefile("${path.module}/userdata/web_server.sh", {
+    app_server_ip = aws_instance.app_1.private_ip
+  })
+
+  tags = { Name = "${var.project_name}-web-2" }
 }
 
 resource "aws_lb" "main" {
@@ -391,67 +482,11 @@ resource "aws_lb_target_group_attachment" "web_2" {
   port             = 80
 }
 
-resource "aws_sns_topic" "main" {
-  name = "${var.project_name}-sns"
-
-  tags = { Name = "${var.project_name}-sns" }
-}
-
-resource "aws_sns_topic_subscription" "main" {
-  topic_arn = aws_sns_topic.main.arn
-  protocol  = "email"
-  endpoint  = var.subscriber_email
-}
-
-resource "aws_iam_role" "app" {
-  name = "${var.project_name}-app-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = { Service = "ec2.amazonaws.com" }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy" "app" {
-  name = "${var.project_name}-app-policy"
-  role = aws_iam_role.app.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = "sns:Publish"
-        Resource = aws_sns_topic.main.arn
-      },
-      {
-        Effect   = "Allow"
-        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
-        Resource = "arn:aws:logs:*:*:*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_instance_profile" "app" {
-  name = "${var.project_name}-app-profile"
-  role = aws_iam_role.app.name
-}
-
 resource "aws_ec2_instance_connect_endpoint" "main" {
   subnet_id          = aws_subnet.private_1.id
   security_group_ids = [aws_security_group.bastion.id]
 
   tags = { Name = "${var.project_name}-eice" }
-}
-
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
 }
 
 data "aws_acm_certificate" "main" {
@@ -481,7 +516,7 @@ resource "aws_cloudfront_distribution" "main" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "alb"
     viewer_protocol_policy = "redirect-to-https"
-    cache_policy_id        = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CachingDisabled
+    cache_policy_id        = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
   }
 
   restrictions {
@@ -513,32 +548,4 @@ resource "aws_route53_record" "shop" {
     zone_id                = aws_cloudfront_distribution.main.hosted_zone_id
     evaluate_target_health = false
   }
-}
-
-resource "aws_iam_role" "web" {
-  name = "${var.project_name}-web-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = { Service = "ec2.amazonaws.com" }
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "web_ssm" {
-  role       = aws_iam_role.web.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-resource "aws_iam_instance_profile" "web" {
-  name = "${var.project_name}-web-profile"
-  role = aws_iam_role.web.name
-}
-
-resource "aws_iam_role_policy_attachment" "app_ssm" {
-  role       = aws_iam_role.app.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
