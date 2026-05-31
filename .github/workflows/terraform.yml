@@ -1,19 +1,24 @@
-name: Deploy Website
+name: Terraform CI/CD
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'website/**'
+      - 'infra/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
 
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
-
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
 
     steps:
       - name: Checkout
@@ -25,42 +30,43 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-three-tier
           aws-region: us-west-1
 
-      - name: Debug repository structure
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
+
+      - name: Terraform Init
+        working-directory: infra
         run: |
-          ls -R website
+          terraform init \
+            -backend-config="bucket=kevin-terraform-state-three-tier" \
+            -backend-config="key=three-tier/terraform.tfstate" \
+            -backend-config="region=us-west-1" \
+            -backend-config="dynamodb_table=terraform-state-lock"
 
-      - name: Copy HTML to web servers (SSM inject)
-        run: |
-          WEB_1_ID=$(aws ec2 describe-instances \
-            --region us-west-1 \
-            --filters "Name=tag:Name,Values=ecommerce-web-1" "Name=instance-state-name,Values=running" \
-            --query "Reservations[0].Instances[0].InstanceId" \
-            --output text)
+      - name: Terraform Format Check
+        working-directory: infra
+        run: terraform fmt -check
 
-          WEB_2_ID=$(aws ec2 describe-instances \
-            --region us-west-1 \
-            --filters "Name=tag:Name,Values=ecommerce-web-2" "Name=instance-state-name,Values=running" \
-            --query "Reservations[0].Instances[0].InstanceId" \
-            --output text)
+      - name: Terraform Validate
+        working-directory: infra
+        run: terraform validate
 
-          echo "Web 1 ID: $WEB_1_ID"
-          echo "Web 2 ID: $WEB_2_ID"
+      - name: Terraform Plan
+        working-directory: infra
+        run: terraform plan
+        env:
+          TF_VAR_my_ip: ${{ secrets.TF_VAR_MY_IP }}
+          TF_VAR_key_pair_name: ${{ secrets.TF_VAR_KEY_PAIR_NAME }}
+          TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
+          TF_VAR_subscriber_email: ${{ secrets.TF_VAR_SUBSCRIBER_EMAIL }}
 
-          HTML_CONTENT=$(base64 -w 0 website/index.html)
-
-          aws ssm send-command \
-            --region us-west-1 \
-            --instance-ids "$WEB_1_ID" \
-            --document-name "AWS-RunShellScript" \
-            --parameters "{\"commands\":[\"echo $HTML_CONTENT | base64 -d | sudo tee /usr/share/nginx/html/index.html > /dev/null && sudo systemctl restart nginx\"]}"
-
-          sleep 5
-
-          aws ssm send-command \
-            --region us-west-1 \
-            --instance-ids "$WEB_2_ID" \
-            --document-name "AWS-RunShellScript" \
-            --parameters "{\"commands\":[\"echo $HTML_CONTENT | base64 -d | sudo tee /usr/share/nginx/html/index.html > /dev/null && sudo systemctl restart nginx\"]}"
-
-      - name: Deployment complete
-        run: echo "SSM deployment successful"
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        working-directory: infra
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_my_ip: ${{ secrets.TF_VAR_MY_IP }}
+          TF_VAR_key_pair_name: ${{ secrets.TF_VAR_KEY_PAIR_NAME }}
+          TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
+          TF_VAR_subscriber_email: ${{ secrets.TF_VAR_SUBSCRIBER_EMAIL }}
