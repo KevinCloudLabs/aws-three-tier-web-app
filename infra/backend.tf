@@ -10,7 +10,7 @@ terraform {
     }
   }
 
-# Three tier web app state
+  # Three tier web app state
   backend "s3" {
     bucket         = "kevin-terraform-state-three-tier"
     key            = "three-tier/terraform.tfstate"
