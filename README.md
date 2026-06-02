@@ -12,7 +12,7 @@ I also wanted to put a personal touch on this one. Cars are one of my biggest pa
 
 ![Architecture Diagram](screenshots/architecture.png)
 
-```
+---
 
 ## 🛠️ AWS Services Used
 
