@@ -549,3 +549,4 @@ resource "aws_route53_record" "shop" {
     evaluate_target_health = false
   }
 }
+
